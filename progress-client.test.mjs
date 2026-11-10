@@ -1,0 +1,24 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+test('installed browser module renders scoped persistent results, playable video and honest progress',()=>{
+ const jobs=[{requestId:'video',sessionId:'s',turn:14,kind:'video',model:'seedance',status:'completed',createdAt:'2026-11-10T05:36:47Z',updatedAt:'2026-11-10T05:40:24Z',files:[{path:'C:/media/movie.mp4',bytes:100}]},{requestId:'live',sessionId:'s',turn:15,kind:'image',model:'image',status:'running',createdAt:'2026-11-10T05:40:24Z',files:[]},{requestId:'old',sessionId:'s',turn:4,kind:'image',status:'expired',files:[]}];
+ const factories=new Map(),slots=new Map(),cleanups=[];
+ const React={createElement:(type,props,...children)=>typeof type==='function'?type({...props,children}):({type,props:props||{},children}),useState:()=>['',()=>{}],useEffect:()=>{},useCallback:f=>f,useSyncExternalStore:()=>({jobs,error:false,now:Date.parse('2026-11-10T05:41:24Z')})};
+ const require=id=>id==='react'?React:factories.get(id)(require);
+ const sandbox={window:{__ModuleLoader__:{load:m=>factories.set(m.id,m.factory)}},document:{baseURI:'http://127.0.0.1:11161/',hidden:false,addEventListener(){},removeEventListener(){}},URL,AbortController,setTimeout,clearTimeout,console};
+ const source=readFileSync(new URL('./client.js',import.meta.url),'utf8');vm.runInNewContext(source,sandbox);
+ assert(source.includes("require('@local/drock-media/progress').apply(ctx)"));
+ const ctx={locale:{register(){}},effect:fn=>cleanups.push(fn()),slots:{inject:(_,fn)=>fn(),register:(spec,Component)=>{slots.set(spec.name,Component);return ()=>{};}}};
+ require('@local/drock-media/progress').apply(ctx);
+ const flatten=node=>!node?[]:[node,...(node.children||[]).flatMap(v=>Array.isArray(v)?v.flatMap(flatten):flatten(v))];
+ const tail=slots.get('conversation.chat.turnTail');assert.equal(slots.has('conversation.composer.dock'),true);const dock=slots.get('conversation.composer.dock');
+ const result=flatten(tail({sessionId:'s',turn:{turn:14},t:k=>k}));
+ assert.equal(result.some(n=>n.props?.className==='drmp-top'),false);const video=result.find(n=>n.type==='video');assert(video);assert.equal(video.props.controls,true);assert.equal(video.props.playsInline,true);assert.equal(video.props.preload,'auto');assert.equal(new URL(video.props.src).pathname,'/api/drock-media/video');assert.equal(new URL(video.props.src).searchParams.get('requestId'),'video');video.props.onCanPlay();
+ assert.equal(tail({sessionId:'s',turn:{turn:16},t:k=>k}),null);
+ const active=flatten(dock({sessionId:'s',t:k=>k}));assert.equal(active.filter(n=>n.type==='article').length,1);assert.equal(active.find(n=>n.props?.className==='drmp-flow').props.role,'progressbar');assert.equal(active.some(n=>n.type==='progress'),false);assert(source.includes('2.4s linear infinite'));
+ jobs[1].progress=42;const bar=flatten(dock({sessionId:'s',t:k=>k})).find(n=>n.type==='progress');assert.equal(bar.props.value,42);
+ jobs[1].status='completed';assert.equal(dock({sessionId:'s',t:k=>k}),null);
+ for(const cleanup of cleanups)cleanup?.();
+});

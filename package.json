@@ -1,0 +1,62 @@
+{
+  "name": "@local/drock-media",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "description": "Harness sidebar image, Midjourney and video settings, conversational generation, progress and inline playback",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "media.js",
+    "catalog.js",
+    "wait.js",
+    "progress.js",
+    "video-route.js",
+    "progress-client.js",
+    "render.js",
+    "client.js",
+    "cordis.patch.yml",
+    "icon.svg",
+    "locale/en.json",
+    "locale/zh.json",
+    "README.md",
+    "LICENSE",
+    "INSTALL.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-layout"
+      ]
+    }
+  },
+  "license": "MIT",
+  "author": "nuet9",
+  "dependencies": {
+    "zod": "4.4.3"
+  },
+  "bundledDependencies": [
+    "zod"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nuet9/dsh-drock-media.git"
+  },
+  "homepage": "https://github.com/nuet9/dsh-drock-media",
+  "bugs": {
+    "url": "https://github.com/nuet9/dsh-drock-media/issues"
+  }
+}

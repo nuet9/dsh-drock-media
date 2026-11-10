@@ -1,0 +1,4 @@
+- insert:
+    - id: drock-media
+      name: '@local/drock-media'
+      config: {}
